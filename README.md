@@ -1,6 +1,6 @@
 # Luca Accounts
 [![Source](https://img.shields.io/badge/source-S_McDonald-blue.svg)](https://github.com/s-mcdonald/LucaAccounts)
-[![Source](https://travis-ci.org/s-mcdonald/LucaAccounts.svg?branch=master)](https://travis-ci.org/s-mcdonald/LucaAccounts.svg?branch=master)
+[![Build Status](https://travis-ci.org/s-mcdonald/LucaAccounts.svg?branch=master)](https://travis-ci.org/s-mcdonald/LucaAccounts)
 
 Luca Accounts is a simple `Double Entry Accounting` validator that can be imlemented into your application. It validates and sorts transactions prior to comitting them to your Database. I'm currently adding some additional features for handling journals, ledgers and posting. 
 
