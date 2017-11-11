@@ -1,0 +1,34 @@
+{
+    "name": "s-mcdonald/luca-accounts",
+    "description": "Double Entry Transaction for PHP",
+    "keywords": ["Sam", "McDonald","double", "entry", "accounting", "accounts", "validator"],
+    "homepage": "https://github.com/s-mcdonald/LucaAccounts",    
+    "license": "MIT",
+    "version": "1.0.0",
+    "authors": [
+        {
+            "name": "Sam McDonald",
+            "email": "s.mcdonald@outlook.com.au",
+            "homepage": "http://s-mcdonald.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",        
+        "nesbot/carbon": "~1.21"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.5@dev",
+        "mockery/mockery": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "SamMcDonald\\LucaAccounts\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\SamMcDonald\\LucaAccounts\\": "tests/"
+        }
+    },
+    "minimum-stability": "dev"
+}
