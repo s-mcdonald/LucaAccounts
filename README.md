@@ -69,7 +69,7 @@ composer require s-mcdonald/luca-accounts
 
 1)  Extend the `abstract AccountSystem` class and then Implement the `AccountInterface` to your `Account` model.
 
-```
+```php
       // Your\App\AccountSystem.php
       class AccountSystem extends \SamMcDonald\LucaAccounts\AccountSystem {
         ...
@@ -85,7 +85,7 @@ That's it! Now just write the transactions.
 
 2) Initialize the AccountSystem. (Include the namespaces)
 
-```
+```php
         use Your\App\AccountSystem;
         use SamMcDonald\LucaAccounts\Components\Transaction;
         use SamMcDonald\LucaAccounts\Components\TransactionLine;
@@ -119,7 +119,7 @@ That's it! Now just write the transactions.
 
 4) Prepare a Transaction
 
-```
+```php
         /**
          * Create a transaction
          */
@@ -134,7 +134,7 @@ That's it! Now just write the transactions.
 
 5. Call the Transact Function
 
-```
+```php
         /**
          * Perform the transaction: This will call the
          * closure function you defined earlier to store
@@ -147,7 +147,7 @@ That's it! Now just write the transactions.
 
 ## Complete Example
 
-```
+```php
 <?php 
 namespace Your\App;
 
