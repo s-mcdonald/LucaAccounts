@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * The MIT License (MIT)
  * 
@@ -22,13 +25,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 namespace SamMcDonald\LucaAccounts\Contracts;
 
+use DateTimeImmutable;
 use SamMcDonald\LucaAccounts\Components\TransactionLine;
 
 interface TransactionInterface
 {
-
     /**
      * Prepares and adds the JournalLine to the txn
      * 
@@ -36,44 +40,33 @@ interface TransactionInterface
      */
     public function addTransactionLine(TransactionLine $line);
 
-
     /**
-     * Removes a Transactionline from the Transaction.
-     * This should only occur before comitting
+     * Removes a TransactionLine from the Transaction.
+     * This should only occur before committing
      * to database or posting.
      * 
      * @param  mixed $account_id The account-id Can be string or integer
      * @return void
      */
-    public function removeTransactionLine($account_id);
-
+    public function removeTransactionLine(mixed $account_id): void;
 
     /**
      * Date of Transaction
-     * 
-     * @return Carbon\Carbon Date of transaction
      */
-    public function getDate();
-
+    public function getDate(): DateTimeImmutable;
 
     /**
      * Retrieves ALL Debits and Credits
      * This function will merge both 
      * into a single array and
      * order by values.
-     *     
-     * @return array Merged set of TransactionLines
      */
-    public function getAccountlineEntries();
-
+    public function getAccountlineEntries(): array;
 
     /**
      * Gets the Transaction Comment
-     * 
-     * @return string Transaction Comment
      */
-    public function getComment();
-
+    public function getComment(): string;
 
     /**
      * Retrieves the debits for the Txn
@@ -81,19 +74,12 @@ interface TransactionInterface
      * @return array :array of debits sorted fom 
      *                greatest value to least
      */
-    public function getDebits();
-
-
+    public function getDebits(): array;
 
     /**
      * Retrieves the credits for the Txn
-     * 
-     * @return array :array of credits sorted fom 
-     *                greatest value to least
      */
-    public function getCredits();
-
-
+    public function getCredits(): array;
 
     /**
      * Gets the validity of the Transaction if Valid is false,
@@ -101,12 +87,6 @@ interface TransactionInterface
      * It just meansthere is 1 or more factors causing 
      * the object to not be allowed to be stored. 
      * This should be investigated.
-     *
-     * @todo  Create an internal message so developer
-     *        can get a code/reason why its not valid
-     * 
-     * @return boolean [description]
      */
-    public function isValid();
-
+    public function isValid(): bool;
 }

@@ -2,7 +2,8 @@
 [![Source](https://img.shields.io/badge/source-S_McDonald-blue.svg)](https://github.com/s-mcdonald/LucaAccounts)
 [![Build Status](https://travis-ci.org/s-mcdonald/LucaAccounts.svg?branch=master)](https://travis-ci.org/s-mcdonald/LucaAccounts)
 
-Luca Accounts is a simple `Double Entry Accounting` validator that can be imlemented into your application. It validates and sorts transactions prior to comitting them to your Database. I'm currently adding some additional features for handling journals, ledgers and posting. 
+Luca Accounts is a `Double Entry Accounting` system that can easily be implemented into your application. 
+It validates and sorts transactions prior to committing them to your Database.
 
 ```php
         //
@@ -28,7 +29,7 @@ Luca Accounts is a simple `Double Entry Accounting` validator that can be imleme
 
 * [Features](#features)
 * [Installation](#installation)
-* [Dependancies](#dependancies)
+* [Dependencies](#dependencies)
 * [Quick Start](#quick-start)
 * [Files](#files)
 * [Name of Luca](#thename)
@@ -37,13 +38,10 @@ Luca Accounts is a simple `Double Entry Accounting` validator that can be imleme
 <a name="features"></a>
 ## Features
 
-1) Double Entry based accounting.
+1) Follows Double Entry based accounting rules.
 2) Built-in validation of transactions.
-3) Sorts transaction entries automatically prior to committing to the db.
-4) Seperate Debit and Credit entries.
-5) Quick and easy implementation.
-6) Easily extend functionality by extending the AccountSystem class.
-7) Does not hold you at ransom on how to implement your accounting system.
+3) Sorts transaction (Dr|Cr) entries automatically prior to committing to the db.
+4) Separate Debit and Credit entries.
 
 
 <a name="installation"></a>
@@ -56,12 +54,10 @@ composer require s-mcdonald/luca-accounts
 ```
 
 
+<a name="dependencies"></a>
+## Dependencies
 
-<a name="dependancies"></a>
-## Dependancies
-
-*  Carbon\Carbon
-*  Php 7.0
+*  Php 8.1
 
 
 <a name="quick-start"></a>
@@ -71,7 +67,7 @@ composer require s-mcdonald/luca-accounts
 
 ```php
       // Your\App\AccountSystem.php
-      class AccountSystem extends \SamMcDonald\LucaAccounts\AccountSystem {
+      class AccountSystem extends \SamMcDonald\LucaAccounts\AbstractAccountSystem {
         ...
       }
 
@@ -83,69 +79,9 @@ composer require s-mcdonald/luca-accounts
 
 That's it! Now just write the transactions.
 
-2) Initialize the AccountSystem. (Include the namespaces)
-
-```php
-        use Your\App\AccountSystem;
-        use SamMcDonald\LucaAccounts\Components\Transaction;
-        use SamMcDonald\LucaAccounts\Components\TransactionLine;
-        
-        ...
-
-        // Instantiate the system
-        $system = new AccountSystem();
-
-        // Register the `transact` function
-        $system->register('transact', function($txn) {
-
-            Journal::createEntry(
-                $txn->getDate(),
-                $txn->getComment(),
-                $txn->getDebits(),
-                $txn->getCredits()              
-            );  
 
 
-        });
-```
-
-3) Load the accounts that you want to perform a transaction on.
-
-```
-        // Load some accounts you want to use in the Transaction
-        $acc1 = Account::fetch('cash-account');
-        $acc2 = Account::fetch('equity-account');
-```
-
-4) Prepare a Transaction
-
-```php
-        /**
-         * Create a transaction
-         */
-        $txn = new Transaction( Carbon::now() , 'Capital Contribution', 
-            [
-                new TransactionLine($acc1, 100.00,  00.00),
-                new TransactionLine($acc2,  00.00, 100.00),                
-            ]
-        );
-
-```
-
-5. Call the Transact Function
-
-```php
-        /**
-         * Perform the transaction: This will call the
-         * closure function you defined earlier to store
-         * the transaction where you prefer.
-         */
-        $system->transact($txn);
-
-```
-
-
-## Complete Example
+## Example
 
 ```php
 <?php 
@@ -155,7 +91,7 @@ use Your\App\AccountSystem;
 use SamMcDonald\LucaAccounts\Components\Transaction;
 use SamMcDonald\LucaAccounts\Components\TransactionLine;
 
-class AccountsTest 
+class YourAccountingProgram
 {
     public static function simpleTransaction() 
     {
@@ -163,15 +99,8 @@ class AccountsTest
         $system = new AccountSystem();
 
         // Register the transact function
-        $system->register('transact', function($txn) {
-
-            Journal::createEntry(
-                $txn->getDate(),
-                $txn->getComment(),
-                $txn->getDebits(),
-                $txn->getCredits()              
-            );  
-
+        $system->register('transact', static function(Transaction $txn) {
+             // Your logic to commit the transaction to DB
         });
 
         /*
@@ -184,7 +113,7 @@ class AccountsTest
         /*
          * Make a purchase of stock request
          */
-        $txn = new Transaction( Carbon::now() , 'Purchase of inventory', 
+        $txn = new Transaction( new DateTimeImmutable('now') , 'Purchase of inventory', 
             [
                 new TransactionLine($acc1, 000.00,  50.00),
                 new TransactionLine($acc2, 000.00, 150.00),
@@ -193,9 +122,9 @@ class AccountsTest
         );
 
         /*
-         * Perform the transaction - optional callback available
+         * Perform the transaction
          */
-        $system->transact($txn,function($result){});
+        $system->transact($txn);
 
     } 
 }
@@ -232,8 +161,10 @@ s-mcdonald/luca-accounts/
               ├── Exceptions/
               │   │
               │   └── DoubleEntryException.php
+              │   │
+              │   └── InvalidTransactionLineEntryException.php
               │
-              │    
+              │        
               ├── Util/
               │   │
               │   ├── AccountType.php
@@ -241,16 +172,9 @@ s-mcdonald/luca-accounts/
               │   └── EntryFormatter.php
               │
               │
-              └── AccountSystem.php
+              └── AbstractAccountSystem.php
 
 ```
-
-## Note on Development 
-
-This package is for educational purposes only.
-I will be extending the functionality over time. Feel free to fork the repo and request some features.
-The package is intended to impose itself very little upon the inbound application so it can be used more as a validator and formatter, not as a fully fledged accounts system. Additional features will be available in future commits to the repo.
-
 
 ## License
 

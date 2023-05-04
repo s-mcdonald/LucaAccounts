@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * The MIT License (MIT)
  * 
@@ -24,66 +27,45 @@
  */
 namespace SamMcDonald\LucaAccounts\Contracts;
 
-use SamMcDonald\LucaAccounts\Contracts\AccountInterface;
-
 interface TransactionLineInterface
 {
-
     /**
      * Sets the comment/memo of the TXNLine
-     * 
-     * @param string $comment 
      */
-    public function setComment($comment);
-
+    public function setComment(string $comment): void;
 
     /**
      * Get the Account
-     * 
-     * @return AccountInterface 
      */
-    public function getAccount() : AccountInterface; 
+    public function getAccount(): AccountInterface; 
 
     /**
      * Get the comment on the line
-     * 
-     * @return string
      */
-    public function getComment() : string;
+    public function getComment(): string;
 
     /**
      * Just get the value, regardless of dr or cr
-     * 
-     * @return float
      */
-    public function getValue() : float;
+    public function getValue(): float;
 
     /**
      * Get the Debit value
-     *     
-     * @return float
      */
-    public function getDebit() : float;
-
+    public function getDebit(): float;
 
     /**
      * Get the Credit value
-     *     
-     * @return float
      */
-    public function getCredit() : float;
+    public function getCredit(): float;
 
     /**
      * Check wheather line is a debit line.
-     * 
-     * @return boolean 
      */
-    public function isDebit() : bool;
+    public function isDebit(): bool;
 
     /**
      * Check wheather line is a credit line.
-     * 
-     * @return boolean 
      */
-    public function isCredit() : bool;
+    public function isCredit(): bool;
 }

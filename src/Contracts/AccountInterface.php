@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * The MIT License (MIT)
  * 
@@ -22,8 +25,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace SamMcDonald\LucaAccounts\Contracts;
 
+namespace SamMcDonald\LucaAccounts\Contracts;
 
 /**
  * Implement this interface on your
@@ -37,27 +40,18 @@ interface AccountInterface
      * This should be the unique identifier in
      * your database. Could be incrementing 
      * integer or a hash id.
-     * 
-     * @return mixed Unique identifier in your database
      */
     public function getAccountId();
 
-
     /**
      * Name of the account.
-     *         
-     * @return String Descriptive name of the account
      */
-    public function getAccountName();
-
+    public function getAccountName(): string;
 
     /**
-     * Account Descriptiption 
-     *         
-     * @return String 
+     * Account Description
      */
-    public function getAccountDescription();
-
+    public function getAccountDescription(): string;
 
     /**
      * Account Type refers to the nature of the account.
@@ -72,5 +66,5 @@ interface AccountInterface
      * 
      * @return string Type of account
      */
-    public function getAccountType();
+    public function getAccountType(): string;
 }

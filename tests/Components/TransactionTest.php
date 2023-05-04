@@ -16,7 +16,7 @@ class TransactionTest extends TestCase
 {
     
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->account1 = Mockery::mock('SamMcDonald\LucaAccounts\Contracts\AccountInterface');
         $this->account1->shouldReceive('getAccountId')->andReturn(158);
@@ -31,7 +31,7 @@ class TransactionTest extends TestCase
         $this->account2->shouldReceive('getAccountDescription')->andReturn('Phone Bill Expense Account');
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
         Mockery::close();
     }

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * The MIT License (MIT)
  * 
@@ -24,11 +27,22 @@
  */
 namespace SamMcDonald\LucaAccounts\Util;
 
-final class AccountType
+enum AccountType: string
 {
-    const ASSET         = 'asset';
-    const LIABILITY     = 'liability';
-    const EQUITY        = 'equity';
-    const INCOME        = 'income';
-    const EXPENSE       = 'expense';
+    case Asset = 'asset';
+    case Liability = 'liability';
+    case Equity = 'equity';
+    case Income = 'income';
+    case Expense = 'expense';
+    
+    public function color(): string
+    {
+        return match($this) {
+            AccountType::Asset => 'aqua',
+            AccountType::Liability => 'black',
+            AccountType::Equity => 'green',
+            AccountType::Income => 'blue',
+            AccountType::Expense => 'red',
+        };
+    }
 }

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * The MIT License (MIT)
  * 
@@ -24,7 +27,6 @@
  */
 namespace SamMcDonald\LucaAccounts\Components;
 
-use Carbon\Carbon;
 use SamMcDonald\LucaAccounts\Util\EntryFormatter;
 use SamMcDonald\LucaAccounts\Contracts\AccountInterface;
 use SamMcDonald\LucaAccounts\Contracts\TransactionLineInterface;
@@ -47,149 +49,114 @@ use SamMcDonald\LucaAccounts\Exceptions\DoubleEntryException;
  */
 class TransactionLine implements TransactionLineInterface
 {
-    /**
-     * Debit Value
-     * 
-     * @var float
-     */
-    private $debit;
+    private float $debit;
 
-    /**
-     * Credit Value
-     * 
-     * @var float
-     */
-    private $credit;
+    private float $credit;
 
     /**
      * Account to be processed
-     *     
-     * @var \SamMcDonald\LucaAccounts\Contracts\AccountInterface
      */
-    private $account;
+    private AccountInterface $account;
 
     /**
      * Comment per line basis
-     *     
-     * @var string
      */
-    private $comment;
-
+    private string $comment;
 
     /**
      * Create a TransactionLine
-     * 
-     * @param AccountInterface $account [description]
-     * @param float            $debit   [description]
-     * @param float            $credit  [description]
-     * @param string           $comment [description]
+     *
+     * @param AccountInterface $account The account for the transaction line
+     * @param float $debit The amount to be debited
+     * @param float $credit The amount to be credited
+     * @param string $comment Comment for the transaction.
+     * @throws DoubleEntryException
      */
     public function __construct(
         AccountInterface $account, 
         float $debit = 0.00, 
         float $credit = 0.00,
-        string $comment = '') 
+        string $comment = ''
+        ) 
     {
-
         $this->account = $account;
-
 
         $this->setComment($comment); 
 
-
         // natulize the number: make absolute
         // accounting does not have negative
-        // numbers so we must clean them.
+        // numbers, so we must clean them.
         $this->debit = EntryFormatter::Amount($debit);  
         $this->credit = EntryFormatter::Amount($credit);  
-
 
         // Check that at least one value is ZERO
         // and at least one value is larger
         // than Zero.
-        if(($this->debit > 0 ) && ($this->credit > 0)) 
-        {
+        if(($this->debit > 0) && ($this->credit > 0)) {
             throw new DoubleEntryException('Either Debit or Credit value must be Zero'); 
         }
-        elseif(($this->debit == 0 ) && ($this->credit == 0)) 
-        {
+
+        if(($this->debit == 0 ) && ($this->credit == 0)) {
             throw new DoubleEntryException('Either Debit or Credit value must be larger then Zero'); 
         }
     }
 
     /**
      * Sets the comment/memo of the TXNLine
-     * 
-     * @param string $comment 
+     * @throws \Exception
      */
-    public function setComment($comment)
+    public function setComment(string $comment): void
     {
-        $this->comment = EntryFormatter::Description($comment); 
+        $this->comment = EntryFormatter::Description($comment);
     }
-
 
     /**
      * Get the Account
-     * 
-     * @return AccountInterface 
      */
-    public function getAccount() : AccountInterface
+    public function getAccount(): AccountInterface
     {
         return $this->account;
     }
 
     /**
      * Get the comment on the line
-     * 
-     * @return string
      */
-    public function getComment() : string 
+    public function getComment(): string 
     {
         return $this->comment;
     }
 
     /**
      * Just get the value, regardless of dr or cr
-     * 
-     * @return float
      */
-    public function getValue() : float 
+    public function getValue(): float 
     {
-        return ($this->isDebit()) ? $this->debit : $this->credit ;
+        return ($this->isDebit())? $this->debit : $this->credit;
     }
 
     /**
      * Get the Debit value
-     *     
-     * @return float
      */
-    public function getDebit() : float 
+    public function getDebit(): float 
     {
         return $this->debit;
     }
 
-
     /**
      * Get the Credit value
-     *     
-     * @return float
      */
-    public function getCredit() : float 
+    public function getCredit(): float 
     {
         return $this->credit;
     }
 
     /**
-     * Check wheather line is a debit line.
-     * 
-     * @return boolean 
+     * Check whether line is a debit line.
      */
-    public function isDebit() : bool 
+    public function isDebit(): bool 
     {
-        if($this->debit > $this->credit) 
-        {
-            if($this->credit == 0) 
-            {
+        if($this->debit > $this->credit) {
+            if($this->credit == 0) {
                 return true;
             }
         }
@@ -197,16 +164,12 @@ class TransactionLine implements TransactionLineInterface
     }
 
     /**
-     * Check wheather line is a credit line.
-     * 
-     * @return boolean 
+     * Check whether line is a credit line.
      */
-    public function isCredit() : bool 
+    public function isCredit(): bool 
     {
-        if($this->credit > $this->debit) 
-        {
-            if($this->debit == 0) 
-            {
+        if($this->credit > $this->debit) {
+            if($this->debit == 0) {
                 return true;
             }
         }

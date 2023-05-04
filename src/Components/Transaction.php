@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * The MIT License (MIT)
  * 
@@ -24,11 +27,11 @@
  */
 namespace SamMcDonald\LucaAccounts\Components;
 
-use Carbon\Carbon;
+use DateTimeImmutable;
+use SamMcDonald\LucaAccounts\Exceptions\InvalidTransactionLineEntryException;
 use SamMcDonald\LucaAccounts\Util\EntryFormatter;
 use SamMcDonald\LucaAccounts\Contracts\TransactionInterface;
 use SamMcDonald\LucaAccounts\Exceptions\DoubleEntryException;
-use SamMcDonald\LucaAccounts\Components\TransactionLine;
 
 /**
  * The Transaction class is responsible for containing 
@@ -39,63 +42,45 @@ use SamMcDonald\LucaAccounts\Components\TransactionLine;
  * @category   Finance/Accounting
  * @package    S-Mcdonald\Accounts
  * @author     Sam McDonald <s.mcdonald@outlook.com.au>
- * @copyright  2016-2017 Sam McDonald
+ * @copyright  2016-2023 Sam McDonald
  * @license    https://opensource.org/licenses/MIT  MIT
  * @version    1.0.0
- * @link       <link to github>
- * @since      Class available since Release 1.0.0
+ * @link       https://github.com/s-mcdonald
+ * @since      1.0.0
  * 
  */
 class Transaction implements TransactionInterface
 {
     /**
      * Date of transaction
-     * 
-     * @var Carbon\Carbon
      */
-    protected $date;
-
+    protected DateTimeImmutable $date;
 
     /**
      * Debits : Array of TransactionLines
-     * 
-     * @var array
      */
-    protected $debits;
+    protected array $debits;
 
     /**
      * Credits : Array of TransactionLines
-     * 
-     * @var array
      */
-    protected $credits;
+    protected array $credits;
 
     /**
      * Comment for the transaction
-     * 
-     * @var string
      */
-    protected $comment;
-
+    protected string $comment;
 
     /**
      * Transaction validity flag
-     * 
-     * @var boolean
      */
-    private $is_valid;
-
-
+    private bool $isValid;
 
     /**
-     * Listying of accounts used 
+     * Listing of accounts used
      * in transaction
-     * 
-     * @var array
      */
-    private $accounts_used;
-
-
+    private array $accountsUsed;
 
     /**
      *  new Transaction(
@@ -104,23 +89,21 @@ class Transaction implements TransactionInterface
      *      [
      *          new TransactionLine($stockAccount,'purchase of stock', 15.00,  0.00),
      *          new TransactionLine($cashAccount, 'purchase of stock', 0.00,  10.00),
-     *          new TransactionLine($acpyAccount, 'purchase of stock', 0.00,  05.00),
+     *          new TransactionLine($otherAccount, 'purchase of stock', 0.00,  05.00),
      *      ]
      *  );
-     *  
-     * 
-     * @param Carbon $date              [description]
-     * @param [type] $description       [description]
-     * @param [type] $entries           [description]
+     *
+     * @throws InvalidTransactionLineEntryException
+     * @throws \Exception
      */
-    public function __construct(Carbon $date, $comment = null, array $entries = []) 
+    public function __construct(DateTimeImmutable $date, string $comment, array $entries = [])
     {
         $this->debits = [];
         $this->credits = [];
                 
         $this->date = $date;
-        $this->is_valid = false;
-        $this->accounts_used = [];
+        $this->isValid = false;
+        $this->accountsUsed = [];
         $this->comment = EntryFormatter::Description($comment);
 
         foreach($entries as $entry) 
@@ -131,23 +114,25 @@ class Transaction implements TransactionInterface
             }
             else
             {
-                throw new DoubleEntryException('One or more of the JournalLine[s] are not valid');
+                throw new InvalidTransactionLineEntryException('One or more of the JournalLine[s] are not valid');
             }
         }       
     }
 
     /**
      * Prepares and adds the JournalLine to the txn
-     * 
-     * @param TransactionLine $line 
+     *
+     * @param TransactionLine $line
+     * @throws DoubleEntryException
+     * @throws \Exception
      */
-    public function addTransactionLine(TransactionLine $line) 
+    public function addTransactionLine(TransactionLine $line): void
     {
-        if($line->getComment() == null)
+        if($line->getComment() == null) {
             $line->setComment($this->comment);
+        }
 
-        if(in_array($line->getAccount()->getAccountName(),$this->accounts_used))
-        {
+        if(in_array($line->getAccount()->getAccountName(),$this->accountsUsed)) {
             throw new DoubleEntryException(
                 "Account `".$line->getAccount()->getAccountName().
                 "` has been used more than once.".
@@ -156,13 +141,13 @@ class Transaction implements TransactionInterface
         }
 
         /** $array[account-id] = 'account-name'  */
-        $this->accounts_used[$line->getAccount()->getAccountId()] 
-            = $line->getAccount()->getAccountName();
+        $this->accountsUsed[$line->getAccount()->getAccountId()] = $line->getAccount()->getAccountName();
 
-        if($line->isDebit()) 
+        if($line->isDebit()) {
             $this->debits[] = $line;
-        else 
+        } else {
             $this->credits[] = $line;
+        }
 
         $this->validate();
     }
@@ -170,25 +155,26 @@ class Transaction implements TransactionInterface
 
     /**
      * Removes a Transactionline from the Transaction.
-     * This should only occur before comitting
+     * This should only occur before committing
      * to database or posting.
      * 
-     * @param  mixed $account_id The account-id Can be string or integer
+     * @param mixed $account_id The account-id Can be string or integer
      * @return void
      */
-    public function removeTransactionLine($account_id) 
+    public function removeTransactionLine(mixed $account_id): void
     {
-
-        unset($this->accounts_used[$account_id]);
+        unset($this->accountsUsed[$account_id]);
 
         foreach ($this->debits as $key => $line) {
-            if($line->getAccount()->getAccountId()==$account_id)
+            if($line->getAccount()->getAccountId() == $account_id) {
                 unset($this->debits[$key]);
+            }
         }
 
         foreach ($this->credits as $key => $line) {
-            if($line->getAccount()->getAccountId()==$account_id)
+            if($line->getAccount()->getAccountId()==$account_id) {
                 unset($this->credits[$key]);
+            }
         }
 
         $this->validate();
@@ -196,14 +182,11 @@ class Transaction implements TransactionInterface
 
     /**
      * Date of Transaction
-     * 
-     * @return Carbon\Carbon Date of transaction
      */
-    public function getDate() 
+    public function getDate(): DateTimeImmutable
     {
         return $this->date;
     }
-
 
     /**
      * Retrieves ALL Debits and Credits
@@ -211,58 +194,63 @@ class Transaction implements TransactionInterface
      * into a single array and
      * order by values.
      *     
-     * @return array Merged set of TransactionLines
      */
-    public function getAccountlineEntries() 
+    public function getAccountlineEntries(): array
     {
         return array_merge($this->getDebits(), $this->getCredits());
     }
 
     /**
      * Gets the Transaction Comment
-     * 
-     * @return string Transaction Comment
      */
-    public function getComment() 
+    public function getComment(): string
     {
         return $this->comment;
     }
 
     /**
      * Retrieves the debits for the Txn
-     * 
-     * @return array :array of debits sorted fom 
+     *
+     * @return array of debits sorted fom
      *                greatest value to least
      */
-    public function getDebits() 
+    public function getDebits(): array
     {
         usort($this->debits, [$this, "cmp"]);
         return $this->debits;
     }
 
     /**
+     * Retrieves the debits for the Txn
+     */
+    public function getDebitsUnsorted(): array
+    {
+        return $this->debits;
+    }
+
+    /**
      * Retrieves the credits for the Txn
-     * 
-     * @return array :array of credits sorted fom 
+     *
+     * @return array :array of credits sorted fom
      *                greatest value to least
      */
-    public function getCredits() 
+    public function getCredits(): array
     {
         usort($this->credits, [$this, "cmp"]);
+        return $this->credits;
+    }
+
+    public function getCreditsUnsorted(): array
+    {
         return $this->credits;
     }
 
     /**
      * Gets the validity of the Transaction if Valid is false,
      * this does not mean the object should be disposed.
-     * It just meansthere is 1 or more factors causing 
+     * It just means there is 1 or more factors causing
      * the object to not be allowed to be stored. 
      * This should be investigated.
-     *
-     * @todo  Create an internal message so developer
-     *        can get a code/reason why its not valid
-     * 
-     * @return boolean [description]
      */
     public function isValid() : bool
     {
@@ -274,43 +262,38 @@ class Transaction implements TransactionInterface
      * 
      * @return bool Weather or not the TXN is valid
      */
-    private function validate() : bool 
+    private function validate(): bool 
     {
-
-        $this->is_valid = false;
+        $this->isValid = false;
 
         foreach($this->debits as $dr) 
         {
-            if(!($dr instanceof TransactionLine))
+            if(!($dr instanceof TransactionLine)) {
                 return false;
+            }
         } 
 
         foreach($this->credits as $cr) 
         {
-            if(!($cr instanceof TransactionLine))
+            if(!($cr instanceof TransactionLine)) {
                 return false;
+            }
         } 
 
         // we check that both 
         // cr and dr balance
-        $drtotal = 0;
-        $crtotal = 0;
+        $drTotal = $crTotal = 0;
 
-        foreach($this->debits as $k => $dr) 
-        {
-           $drtotal += $dr->getValue();
+        foreach($this->debits as $k => $dr) {
+           $drTotal += $dr->getValue();
         }
 
-        foreach($this->credits as $k => $cr) 
-        {
-           $crtotal += $cr->getValue();
+        foreach($this->credits as $k => $cr) {
+           $crTotal += $cr->getValue();
         }
 
-        // both dr and cr must 
-        // be larger than 0
-        if(($drtotal > 0) && ($drtotal === $crtotal))
-        {
-            $this->is_valid = true;
+        if(($drTotal > 0) && ($drTotal === $crTotal)) {
+            $this->isValid = true;
             return true;
         }
 
@@ -321,14 +304,9 @@ class Transaction implements TransactionInterface
      * Sort the txn lines by larger amounts in 
      * to be displayed first. makes ready 
      * ledgers and records much cleaner.
-     * 
-     * @param  [type] $a [description]
-     * @param  [type] $b [description]
-     * @return [type]    [description]
      */
-    private function cmp($a, $b)
+    private function cmp($a, $b): mixed
     {
         return max($a->getValue(), $b->getValue());
     }
-
 }

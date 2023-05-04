@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * The MIT License (MIT)
  * 
@@ -24,55 +27,37 @@
  */
 namespace SamMcDonald\LucaAccounts\Util;
 
-
 class EntryFormatter
 {
-    
-    public static function Amount($value)
+    public static function Amount(float|int $value): float
     {
-        return (float) bcdiv(abs($value), 1, 2);
+        return (float) bcdiv( (string) abs($value), "1", 2);
     }
 
-    public static function Description($text = null, $mlength = 50, $terminator = '...') 
+    /**
+     * @throws \Exception
+     */
+    public static function Description(string $text, int $lineLength = 50, string $terminator = '...'): string
     {
-        if($text == null)
-        {
-            return '';
+        if (strlen($text) <= $lineLength) {
+            return $text;
         }
 
-        if(is_string($text) === false) 
-        {
-            throw new \Exception('Value not of string type');
-        }
+        $words = preg_split('/\s/', $text);
+        $output = '';
+        $i = 0;
 
-        if (strlen($text) > $mlength || $text == '') 
-        {
-            $words  = preg_split('/\s/', $text);      
-            $output = '';
-            $i      = 0;
-
-            while (true) 
-            {
-                $length = strlen($output) + strlen($words[$i]);
-
-                if ($length > $mlength) 
-                {
-                    break;
-                } 
-                else 
-                {
-                    $output .= " " . $words[$i];
-                    ++$i;
-                }
+        while (true) {
+            $length = strlen($output) + strlen($words[$i]);
+            if ($length > $lineLength) {
+                break;
+            } else {
+                $output .= " " . $words[$i];
+                ++$i;
             }
-            $output .= $terminator;
-        } 
-        else 
-        {
-            $output = $text;
         }
+        $output .= $terminator;
 
         return $output;
     }
-    
 }

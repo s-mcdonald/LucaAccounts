@@ -12,13 +12,13 @@ use SamMcDonald\LucaAccounts\Components\TransactionLine;
 use SamMcDonald\LucaAccounts\Contracts\AccountInterface;
 use SamMcDonald\LucaAccounts\Contracts\TransactionLineInterface;
 use SamMcDonald\LucaAccounts\Exceptions\DoubleEntryException;
+use PHPUnit\Framework\TestCase;
 
-
-class TransactionLineTest extends MockeryTestCase 
+class TransactionLineTest extends TestCase 
 { 
     private $account;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->account = Mockery::mock('SamMcDonald\LucaAccounts\Contracts\AccountInterface');
         $this->account->shouldReceive('getAccountId')->andReturn(158);
@@ -27,7 +27,7 @@ class TransactionLineTest extends MockeryTestCase
         $this->account->shouldReceive('getAccountDescription')->andReturn('Cash at Bank');
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
         Mockery::close();
     }
