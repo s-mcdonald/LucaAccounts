@@ -1,15 +1,15 @@
 {
     "name": "s-mcdonald/luca-accounts",
-    "description": "Double Entry Transaction for PHP",
+    "description": "Double Entry Transactions for PHP",
     "keywords": ["Sam McDonald","double", "entry", "accounting", "accounts", "validator"],
     "homepage": "https://github.com/s-mcdonald/LucaAccounts",    
     "license": "MIT",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "authors": [
         {
             "name": "Sam McDonald",
             "email": "s.mcdonald@outlook.com.au",
-            "homepage": "http://s-mcdonald.com"
+            "homepage": "s-mcdonald.com"
         }
     ],
     "require": {

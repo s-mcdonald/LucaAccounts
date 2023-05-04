@@ -43,7 +43,7 @@ class AccountSystemTest extends TestCase
 
     private function getSystemRegisterTrue()
     {
-        $system = Mockery::mock('SamMcDonald\LucaAccounts\AccountSystem');
+        $system = Mockery::mock('SamMcDonald\LucaAccounts\AbstractAccountSystem');
         $system->shouldReceive('register')->andReturn(true); 
         return $system;
     }

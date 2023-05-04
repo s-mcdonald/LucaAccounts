@@ -71,6 +71,7 @@ class TransactionLine implements TransactionLineInterface
      * @param float $credit The amount to be credited
      * @param string $comment Comment for the transaction.
      * @throws DoubleEntryException
+     * @throws \Exception
      */
     public function __construct(
         AccountInterface $account, 
@@ -102,20 +103,20 @@ class TransactionLine implements TransactionLineInterface
     }
 
     /**
+     * Get the Account
+     */
+    public function getAccount(): AccountInterface
+    {
+        return $this->account;
+    }
+
+    /**
      * Sets the comment/memo of the TXNLine
      * @throws \Exception
      */
     public function setComment(string $comment): void
     {
         $this->comment = EntryFormatter::Description($comment);
-    }
-
-    /**
-     * Get the Account
-     */
-    public function getAccount(): AccountInterface
-    {
-        return $this->account;
     }
 
     /**

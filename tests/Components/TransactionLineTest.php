@@ -1,115 +1,116 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\SamMcDonald\LucaAccounts\Components;
 
-use PHPUnit\Framework\TestCase;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
-
 use Mockery;
-use Carbon\Carbon;
-use SamMcDonald\LucaAccounts\Util\EntryFormatter;
 use SamMcDonald\LucaAccounts\Components\TransactionLine;
 use SamMcDonald\LucaAccounts\Contracts\AccountInterface;
-use SamMcDonald\LucaAccounts\Contracts\TransactionLineInterface;
 use SamMcDonald\LucaAccounts\Exceptions\DoubleEntryException;
 use PHPUnit\Framework\TestCase;
 
 class TransactionLineTest extends TestCase 
-{ 
-    private $account;
-
-    protected function setUp(): void
+{
+    /**
+     * @throws DoubleEntryException
+     * @throws \Exception
+     */
+    public function testSetComment()
     {
-        $this->account = Mockery::mock('SamMcDonald\LucaAccounts\Contracts\AccountInterface');
-        $this->account->shouldReceive('getAccountId')->andReturn(158);
-        $this->account->shouldReceive('getAccountName')->andReturn('Cash');
-        $this->account->shouldReceive('getAccountType')->andReturn('Asset');
-        $this->account->shouldReceive('getAccountDescription')->andReturn('Cash at Bank');
-    }
+        $comment = 'foo';
+        $transactionLine = $this->createValidTransactionLine();
 
-    protected function tearDown(): void
-    {
-        Mockery::close();
-    }
+        // prior to setting comment
+        $this->assertEquals('', $transactionLine->getComment());
+        $transactionLine->setComment($comment);
 
-    public function testMockAccount()
-    {
-        $accountName = $this->account->getAccountName();
-        $accountType = $this->account->getAccountType();
-
-        $this->assertEquals('Cash', $accountName);
-        $this->assertEquals('Asset', $accountType);
+        $this->assertEquals($comment, $transactionLine->getComment());
     }
 
     /**
-     * Test the (Constructor) Valid and Invalid Terms
+     * @dataProvider provideDataForTestDoesNotThrowException
+     * @throws DoubleEntryException
      */
-    
-    /**
-     * @dataProvider debitDataProvider
-     */
-    public function testCheckConstrctorDebitPositiveMinEdge($debit, $credit)
+    public function testDoesNotThrowException($debit, $credit)
     {
-        $txn = new TransactionLine($this->account, $debit, $credit, ''); 
+        $flag = false;
+        try {
+            // @todo - Write a ExceptionAsserter
+            $txn = new TransactionLine(
+                $this->createAccount(),
+                $debit,
+                $credit,
+                'foo'
+            );
+        } catch (\Exception $e) {
+            $flag = true;
+        }
+
+        self::assertFalse($flag);
     }
 
-
-    public function testCheckConstrctorValuesAtZeroException()
+    public static function provideDataForTestDoesNotThrowException(): array
     {
-        // Tell PHPUnit that we are expecting this exception.
+        return [
+            [0, 0.500],
+            [0.500, 0],
+        ];
+    }
+
+    /**
+     * @dataProvider provideDataForTestExceptions
+     * @throws DoubleEntryException
+     */
+    public function testExceptions($debit, $credit)
+    {
         $this->expectException(DoubleEntryException::class);
 
-        // InValid Constructor
-        $txn = new TransactionLine($this->account, 0, 0, ''); 
-
+        $txn = new TransactionLine(
+            $this->createAccount(),
+            $debit,
+            $credit,
+            'foo'
+        );
     }
 
-    public function testCheckConstrctorException()
+    public static function provideDataForTestExceptions(): array
     {
-        // Tell PHPUnit that we are expecting this exception.
-        $this->expectException(DoubleEntryException::class);
-
-        // InValid Constructor
-        $txn = new TransactionLine($this->account, 50, 70, ''); 
-
+        return [
+            [0, 0],
+            [0.00, 0.00],
+            [50.00, 70.00],
+        ];
     }
-
-
-
-
 
     /**
-     * Test the (Account) getAccount() method.
+     * @throws DoubleEntryException
      */
-    
-
     public function testCheckAccountValidity()
     {
-        // Create The TXN Line
-        $txn = new TransactionLine($this->account, 0, 70, ''); 
-
-        $this->assertEquals($this->account, $txn->getAccount());
+        $account = $this->createAccount();
+        $txn = new TransactionLine($account, 0, 70, '');
+        $this->assertSame($account, $txn->getAccount());
     }
 
-
-
     /**
-     * Test the (Float) Debit on Transaction Line
+     * @throws DoubleEntryException
      */
-    
-
     public function testDebitValueAsConstructed()
     {
+        $debitAmount = 50;
+        $creditAmount = 0;
+
         // Create The TXN Line
-        $txn = new TransactionLine($this->account, 50, 0, ''); 
+        $txn = new TransactionLine($this->createAccount(), $debitAmount, $creditAmount, '');
 
         // Assert the default debit value as constructed initially
         // This should never change after created.
-        $this->assertEquals(50, $txn->getValue());
-        $this->assertEquals(50, $txn->getDebit());
+        $this->assertEquals($debitAmount, $txn->getValue());
+        $this->assertEquals($debitAmount, $txn->getDebit());
 
         // For this to succeed we must also assert that Credit is also ZERO
-        $this->assertEquals(0, $txn->getCredit());
+        $this->assertEquals($creditAmount, $txn->getCredit());
 
         // Finally we must ensure that isDebit is true and isCredit is false
         $this->assertEquals(true, $txn->isDebit());
@@ -119,7 +120,7 @@ class TransactionLineTest extends TestCase
     public function testCreditValueAsConstructed()
     {
         // Create The TXN Line
-        $txn = new TransactionLine($this->account, 0, 70, ''); 
+        $txn = new TransactionLine($this->createAccount(), 0, 70, '');
 
         // Assert the default credit value as constructed initially
         // This should never change after created.
@@ -134,71 +135,37 @@ class TransactionLineTest extends TestCase
         $this->assertEquals(false, $txn->isDebit());
     }
 
-
     /**
-     * Test the (String) Comment on Transaction Line
+     * @throws DoubleEntryException
      */
-    
-
-
-    public function testExpectedSetComment()
-    {
-        // Create The TXN Line
-        $txn = new TransactionLine($this->account, 50, 0, ''); 
-
-        // Assert the default Comment
-        $this->assertEquals('', $txn->getComment());
-
-
-        // Assert that the new comment equals what we passed to it
-        $new_comment = 'Changed as expected';
-        $txn->setComment($new_comment);
-        $this->assertEquals($new_comment, $txn->getComment());
-    }
-
     public function testLongSetComment()
     {
         // Create The TXN Line
-        $txn = new TransactionLine($this->account, 50, 0, ''); 
+        $txn = new TransactionLine($this->createAccount(), 50, 0, '');
 
-        // Assert very long comment
-        $new_comment = 'This is a very long comment for a transaction line and one would not expect that a transaction would have such a long comment.';
+        $new_comment = <<<STR
+This is a very long comment for a transaction line and one would not expect that a transaction would have such a long comment.
+STR;
+
         $txn->setComment($new_comment);
-        $this->assertNotEquals($new_comment, $txn->getComment());
+        $this->assertEquals("This is a very long comment for a transaction line...", $txn->getComment());
     }
-
-    public function testNullInputOnSetComment()
-    {
-        // Create The TXN Line
-        $txn = new TransactionLine($this->account, 50, 0, ''); 
-
-        // Assert null as a comment
-        $txn->setComment(null);
-        $this->assertEquals(null, $txn->getComment());
-    }
-
-
-    /*
-     *
-     * Data Providers
-     * 
-     * 
-     */
-    
-
-
 
     /**
-     * debitDataProvider DtaProvider for testing initial constructor values.
-     * 
-     * @return array
+     * @throws DoubleEntryException
      */
-    public function debitDataProvider()
+    public function createValidTransactionLine(): TransactionLine
     {
-        // test with this values
-        return [
-            [0, 0.500],
-            [0.500, 0],
-        ];
+        $account = Mockery::mock(AccountInterface::class);
+        return new TransactionLine(
+            $account,
+            00.00,
+            10.00
+        );
+    }
+
+    public function createAccount(): Mockery|AccountInterface
+    {
+        return Mockery::mock(AccountInterface::class);
     }
 }

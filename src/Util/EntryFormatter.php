@@ -31,7 +31,7 @@ class EntryFormatter
 {
     public static function Amount(float|int $value): float
     {
-        return (float) bcdiv( (string) abs($value), "1", 2);
+        return (float) abs($value);
     }
 
     /**
@@ -58,6 +58,6 @@ class EntryFormatter
         }
         $output .= $terminator;
 
-        return $output;
+        return trim($output);
     }
 }
