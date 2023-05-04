@@ -4,12 +4,12 @@
     "keywords": ["Sam McDonald","double", "entry", "accounting", "accounts", "validator"],
     "homepage": "https://github.com/s-mcdonald/LucaAccounts",    
     "license": "MIT",
-    "version": "2.0.0",
+    "version": "1.4.1",
     "authors": [
         {
             "name": "Sam McDonald",
             "email": "s.mcdonald@outlook.com.au",
-            "homepage": "s-mcdonald.com"
+            "homepage": "https://github.com/s-mcdonald"
         }
     ],
     "require": {

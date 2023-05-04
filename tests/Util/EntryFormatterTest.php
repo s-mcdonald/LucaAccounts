@@ -11,7 +11,6 @@ class EntryFormatterTest extends TestCase
     public function testInvalidString()
     {
         $this->expectException(\Exception::class);
-
         $r = EntryFormatter::Description(['test']);
     }
 
