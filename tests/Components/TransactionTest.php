@@ -1,21 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\SamMcDonald\LucaAccounts\Components;
 
 use PHPUnit\Framework\TestCase;
 
 use Mockery;
-use Carbon\Carbon;
-use SamMcDonald\LucaAccounts\Util\EntryFormatter;
-use SamMcDonald\LucaAccounts\Contracts\TransactionInterface;
 use SamMcDonald\LucaAccounts\Exceptions\DoubleEntryException;
 use SamMcDonald\LucaAccounts\Components\TransactionLine;
 use SamMcDonald\LucaAccounts\Components\Transaction;
+use SamMcDonald\LucaAccounts\Exceptions\InvalidTransactionLineEntryException;
 
 class TransactionTest extends TestCase 
 {
-    
-
     protected function setUp(): void
     {
         $this->account1 = Mockery::mock('SamMcDonald\LucaAccounts\Contracts\AccountInterface');
@@ -38,66 +36,44 @@ class TransactionTest extends TestCase
 
     public function testFailsConstructor()
     {
-        $this->expectException(DoubleEntryException::class);
-
-        $date = Carbon::now();
-
-        $txn = new Transaction($date, null, ['string_value']);
-
+        $this->expectException(InvalidTransactionLineEntryException::class);
+        $date = new \DateTimeImmutable('now');
+        new Transaction($date, "", ['string_value']);
     }
 
     public function testGetDate()
     {
-
-        $date = Carbon::now();
-
+        $date = new \DateTimeImmutable('now');
         $line1 = new TransactionLine($this->account1, 50, 0, '');
         $line2 = new TransactionLine($this->account2, 50, 0, '');
-
         $txn = new Transaction($date, 'Valid Txn', [$line1,$line2]);
-
         $this->assertEquals($date, $txn->getDate());
-
     }
 
     public function testGetComment()
     {
-
-        $date = Carbon::now();
-
+        $date = new \DateTimeImmutable('now');
         $line1 = new TransactionLine($this->account1, 50, 0, 'Account Comment');
         $line2 = new TransactionLine($this->account2, 50, 0, 'Account 2 Comment');
-
         $txn = new Transaction($date, 'Valid Txn', [$line1,$line2]);
-
         $this->assertEquals('Valid Txn', $txn->getComment());
-
     }
 
     public function testAddTransactionLineError()
     {
-
         $this->expectException(DoubleEntryException::class);
-
-        $date = Carbon::now();
-
+        $date = new \DateTimeImmutable('now');
         $line1 = new TransactionLine($this->account1, 50, 0, 'Account Comment');
         $line2 = new TransactionLine($this->account1, 0, 50, 'Account 2 Comment');
-
-        $txn = new Transaction($date, 'Valid Txn', [$line1, $line2]);
-
+        new Transaction($date, 'Valid Txn', [$line1, $line2]);
     }
 
     public function testAddTransactionLineDebit()
     {
-
-        $date = Carbon::now();
-
+        $date = new \DateTimeImmutable('now');
         $line1 = new TransactionLine($this->account1, 50, 0, 'Account Comment');
         $line2 = new TransactionLine($this->account2, 0, 50, 'Account 2 Comment');
-
         $txn = new Transaction($date, 'Valid Txn', [$line2]);
-
         $txn->addTransactionLine($line1);
 
         $this->assertEquals([$line1], $txn->getDebits());
@@ -106,8 +82,7 @@ class TransactionTest extends TestCase
 
     public function testAddTransactionLineCredit()
     {
-
-        $date = Carbon::now();
+        $date = new \DateTimeImmutable('now');
 
         $line1 = new TransactionLine($this->account1, 50, 0, 'Account Comment');
         $line2 = new TransactionLine($this->account2, 0, 50, 'Account 2 Comment');
@@ -122,8 +97,7 @@ class TransactionTest extends TestCase
 
     public function testTXNValidity1()
     {
-
-        $date = Carbon::now();
+        $date = new \DateTimeImmutable('now');
 
         $line1 = new TransactionLine($this->account1, 50, 0, 'Account Comment');
         $line2 = new TransactionLine($this->account2, 50, 0, 'Account 2 Comment');
@@ -136,9 +110,7 @@ class TransactionTest extends TestCase
 
     public function testTXNValidity2()
     {
-
-        $date = Carbon::now();
-
+        $date = new \DateTimeImmutable('now');
         $line1 = new TransactionLine($this->account1, 50, 0, 'Account Comment');
         $line2 = new TransactionLine($this->account2, 0, 50, 'Account 2 Comment');
 
@@ -150,9 +122,7 @@ class TransactionTest extends TestCase
 
     public function testRemoveTransactionLineError()
     {
-
-        $date = Carbon::now();
-
+        $date = new \DateTimeImmutable('now');
         $line1 = new TransactionLine($this->account1, 50, 0, 'Account Comment');
         $line2 = new TransactionLine($this->account2, 0, 50, 'Account 2 Comment');
 
@@ -169,9 +139,7 @@ class TransactionTest extends TestCase
 
     public function testCMPTesting()
     {
-
-        $date = Carbon::now();
-
+        $date = new \DateTimeImmutable('now');
         $line1 = new TransactionLine($this->account1, 80, 0, 'Account Comment');
         $line2 = new TransactionLine($this->account2, 50, 0, 'Account 2 Comment');
 
@@ -183,9 +151,7 @@ class TransactionTest extends TestCase
 
     public function testGetCredits()
     {
-
-        $date = Carbon::now();
-
+        $date = new \DateTimeImmutable('now');
         $line1 = new TransactionLine($this->account1, 50, 0, 'Account Comment');
         $line2 = new TransactionLine($this->account2, 0, 50, 'Account 2 Comment');
 
@@ -197,9 +163,7 @@ class TransactionTest extends TestCase
 
     public function testGetDedits()
     {
-
-        $date = Carbon::now();
-
+        $date = new \DateTimeImmutable('now');
         $line1 = new TransactionLine($this->account1, 50, 0, 'Account Comment');
         $line2 = new TransactionLine($this->account2, 0, 50, 'Account 2 Comment');
 
@@ -211,15 +175,10 @@ class TransactionTest extends TestCase
 
     public function testGetAccountlineEntries()
     {
-
-        $date = Carbon::now();
-
+        $date = new \DateTimeImmutable('now');
         $line1 = new TransactionLine($this->account1, 50, 0, 'Account Comment');
         $line2 = new TransactionLine($this->account2, 0, 50, 'Account 2 Comment');
-
         $txn = new Transaction($date, 'Valid Txn', [$line1,$line2]);
-
         $this->assertEquals([$line1,$line2], $txn->getAccountlineEntries());
-
     } 
 }
