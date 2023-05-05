@@ -29,11 +29,6 @@ namespace SamMcDonald\LucaAccounts\Util;
 
 class EntryFormatter
 {
-    public static function Amount(float|int $value): float
-    {
-        return (float) abs($value);
-    }
-
     /**
      * @throws \Exception
      */
@@ -51,10 +46,9 @@ class EntryFormatter
             $length = strlen($output) + strlen($words[$i]);
             if ($length > $lineLength) {
                 break;
-            } else {
-                $output .= " " . $words[$i];
-                ++$i;
             }
+            $output .= " " . $words[$i];
+            ++$i;
         }
         $output .= $terminator;
 

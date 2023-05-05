@@ -54,41 +54,24 @@ class TransactionLine implements TransactionLineInterface
     private float $credit;
 
     /**
-     * Account to be processed
-     */
-    private AccountInterface $account;
-
-    /**
      * Comment per line basis
      */
     private string $comment;
 
-    /**
-     * Create a TransactionLine
-     *
-     * @param AccountInterface $account The account for the transaction line
-     * @param float $debit The amount to be debited
-     * @param float $credit The amount to be credited
-     * @param string $comment Comment for the transaction.
-     * @throws DoubleEntryException
-     * @throws \Exception
-     */
     public function __construct(
-        AccountInterface $account, 
-        float $debit = 0.00, 
+        private readonly AccountInterface $account,
+        float $debit = 0.00,
         float $credit = 0.00,
         string $comment = ''
         ) 
     {
-        $this->account = $account;
-
-        $this->setComment($comment); 
+        $this->setComment($comment);
 
         // natulize the number: make absolute
         // accounting does not have negative
         // numbers, so we must clean them.
-        $this->debit = EntryFormatter::Amount($debit);  
-        $this->credit = EntryFormatter::Amount($credit);  
+        $this->debit = self::amount($debit);
+        $this->credit = self::amount($credit);
 
         // Check that at least one value is ZERO
         // and at least one value is larger
@@ -175,5 +158,10 @@ class TransactionLine implements TransactionLineInterface
             }
         }
         return false;
+    }
+
+    private static function amount(float|int $value): float
+    {
+        return (float) abs($value);
     }
 }

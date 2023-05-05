@@ -239,7 +239,7 @@ class Transaction implements TransactionInterface
            $crTotal += $cr->getValue();
         }
 
-        if(($drTotal === $crTotal) && (0 > $drTotal)) {
+        if(($drTotal === $crTotal) && ($drTotal > 0)) {
             $this->isValid = true;
         }
 

@@ -95,29 +95,42 @@ class TransactionTest extends TestCase
 
     }
 
-    public function testTXNValidity1()
+    /**
+     * @dataProvider  provideDataForTestTransactionValidity
+     */
+    public function testTransactionValidity(array $transactions, bool $isValid)
     {
-        $date = new \DateTimeImmutable('now');
+        $txn = new Transaction(
+            new \DateTimeImmutable('now'),
+            'baz',
+            $transactions
+        );
 
-        $line1 = new TransactionLine($this->account1, 50, 0, 'Account Comment');
-        $line2 = new TransactionLine($this->account2, 50, 0, 'Account 2 Comment');
-
-        $txn = new Transaction($date, 'Valid Txn', [$line1,$line2]);
-
-        $this->assertFalse($txn->isValid());
-
+        $this->assertEquals($isValid, $txn->isValid());
     }
 
-    public function testTXNValidity2()
+    /**
+     * @throws DoubleEntryException
+     */
+    public function provideDataForTestTransactionValidity(): array
     {
-        $date = new \DateTimeImmutable('now');
-        $line1 = new TransactionLine($this->account1, 50, 0, 'Account Comment');
-        $line2 = new TransactionLine($this->account2, 0, 50, 'Account 2 Comment');
 
-        $txn = new Transaction($date, 'Valid Txn', [$line1,$line2]);
-
-        $this->assertTrue($txn->isValid());
-
+        return [
+              'invalid test' => [
+                    [
+                        new TransactionLine($this->account1, 50, 0, 'foo'),
+                        new TransactionLine($this->account2, 0, 50, 'bar')
+                    ]
+                  ,
+                  true
+              ],
+              'valid test' =>
+                    [
+                        new TransactionLine($this->account1, 50, 0, 'foo'),
+                        new TransactionLine($this->account2, 50, 0, 'bar'),
+                    ],
+                false
+            ];
     }
 
     public function testRemoveTransactionLineError()

@@ -1,14 +1,13 @@
-# Luca Accounts
+# Luca  // Accounting
 [![Source](https://img.shields.io/badge/source-S_McDonald-blue.svg)](https://github.com/s-mcdonald/LucaAccounts)
-[![Build Status](https://travis-ci.org/s-mcdonald/LucaAccounts.svg?branch=master)](https://travis-ci.org/s-mcdonald/LucaAccounts)
+[![Source](https://img.shields.io/badge/license-MIT-gold.svg)](https://github.com/s-mcdonald/LucaAccounts)
 
-Luca Accounts is a `Double Entry Accounting` system that can easily be implemented into your application. 
+Luca Accounting is a `Double Entry Accounting` system that can easily be implemented into your application. 
 It validates and sorts transactions prior to committing them to your Database.
 
 ```php
-        //
+
         // Create a Transaction
-        //
         $txn = new Transaction( $date , 'Capital Contribution', 
             [
                 new TransactionLine($cash_account_1, 100.00,  00.00),
@@ -16,9 +15,7 @@ It validates and sorts transactions prior to committing them to your Database.
             ]
         );
 
-        //
         // Process the Transaction
-        //
         $system->transact($txn);
 
 ```
@@ -63,7 +60,7 @@ composer require s-mcdonald/luca-accounts
 <a name="quick-start"></a>
 ## Quick-Start
 
-1)  Extend the `abstract AccountSystem` class and then Implement the `AccountInterface` to your `Account` model.
+1)  Extend the abstract `AccountSystem` class and then Implement the `AccountInterface` to your `Account` model or entity.
 
 ```php
       // Your\App\AccountSystem.php
@@ -77,14 +74,12 @@ composer require s-mcdonald/luca-accounts
       }
 ```
 
-That's it! Now just write the transactions.
-
-
 
 ## Example
 
 ```php
 <?php 
+
 namespace Your\App;
 
 use Your\App\AccountSystem;
@@ -104,7 +99,8 @@ class YourAccountingProgram
         });
 
         /*
-         * Load the accounts you want to use in the Transaction
+         * Load the accounts you want to use in the Transaction.
+         * This will most likely be a Model or Entity object.
          */
         $acc1 = Account::fetch('cash-account'); 
         $acc2 = Account::fetch('acc-rec-account'); 
@@ -125,7 +121,6 @@ class YourAccountingProgram
          * Perform the transaction
          */
         $system->transact($txn);
-
     } 
 }
 
@@ -164,11 +159,13 @@ s-mcdonald/luca-accounts/
               │   │
               │   └── InvalidTransactionLineEntryException.php
               │
-              │        
+              │
+              ├── Enums/
+              │   │
+              │   └── AccountType.php 
+              │    
               ├── Util/
               │   │
-              │   ├── AccountType.php
-              │   │            
               │   └── EntryFormatter.php
               │
               │
@@ -184,4 +181,4 @@ Luca-Accounts is licensed under the terms of the [MIT License](http://opensource
 
 ## Name of Luca
 <a name="thename"></a>
-Luca-Accounts was named after Luca Pacioli (The father of Accounting). He popularized the DoubleEntry book-keeping system.
+Luca-Accounting was named after Luca Pacioli (The father of Accounting). He popularized the DoubleEntry book-keeping system.
