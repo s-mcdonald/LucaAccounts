@@ -28,43 +28,15 @@ declare(strict_types=1);
 
 namespace SamMcDonald\LucaAccounts\Contracts;
 
-/**
- * Implement this interface on your
- * account class/models.
- */
+use SamMcDonald\LucaAccounts\Enums\AccountType;
+
 interface AccountInterface
 {
-    /**
-     * Id of the account.
-     *
-     * This should be the unique identifier in
-     * your database. Could be incrementing 
-     * integer or a hash id.
-     */
     public function getAccountId();
 
-    /**
-     * Name of the account.
-     */
     public function getAccountName(): string;
 
-    /**
-     * Account Description
-     */
     public function getAccountDescription(): string;
 
-    /**
-     * Account Type refers to the nature of the account.
-     * Valid types are;
-     *
-     * Asset
-     * Liability
-     * Equity/Owners Equity
-     * Income/Revenue
-     * Expense
-     *
-     * 
-     * @return string Type of account
-     */
-    public function getAccountType(): string;
+    public function getAccountType(): AccountType;
 }

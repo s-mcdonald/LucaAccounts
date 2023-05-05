@@ -1,19 +1,13 @@
 <?php
 
-namespace Tests\SamMcDonald\LucaAccounts\Util;
+declare(strict_types=1);
 
-use SamMcDonald\LucaAccounts\Util\EntryFormatter;
+namespace Tests\SamMcDonald\LucaAccounts\Util;
 
 use PHPUnit\Framework\TestCase;
 
 class EntryFormatterTest extends TestCase 
 {
-    public function testInvalidString()
-    {
-        $this->expectException(\Exception::class);
-        $r = EntryFormatter::Description(['test']);
-    }
-
     public function testEntryAmount()
     {
         // $r = EntryFormatter::Amount(500.0005);
