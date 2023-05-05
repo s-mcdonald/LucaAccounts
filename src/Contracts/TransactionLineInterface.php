@@ -60,12 +60,12 @@ interface TransactionLineInterface
     public function getCredit(): float;
 
     /**
-     * Check wheather line is a debit line.
+     * Check whether line is a debit line.
      */
     public function isDebit(): bool;
 
     /**
-     * Check wheather line is a credit line.
+     * Check whether line is a credit line.
      */
     public function isCredit(): bool;
 }

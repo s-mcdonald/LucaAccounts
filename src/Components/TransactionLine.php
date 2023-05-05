@@ -43,7 +43,7 @@ use SamMcDonald\LucaAccounts\Exceptions\DoubleEntryException;
  * @copyright  2016-2017 Sam McDonald
  * @license    https://opensource.org/licenses/MIT 
  * @version    1.0.0
- * @link       <link to github>
+ * @link       https://github.com/s-mcdonald
  * @since      Class available since Release 1.0.0
  * 
  */

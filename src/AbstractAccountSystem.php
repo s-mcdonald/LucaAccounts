@@ -91,20 +91,4 @@ abstract class AbstractAccountSystem
 
         return $result;
     }
-
-    /**
-     * The $account object needs to be able to get its transactionlines;
-     * Balance all books
-     */
-    // public final function balance(array $accounts): bool
-    // {
-    //     $debits = 0;
-    //     $credits = 0;
-    //     foreach($accounts as $account)
-    //     {
-    //         $debits += $account->getTransactioin()->getDebits();
-    //         $credits += $account->getCredit();
-    //     }
-    //     return ($debits === $credits);
-    // }
 }

@@ -119,28 +119,23 @@ class Transaction implements TransactionInterface
         }       
     }
 
-    /**
-     * Prepares and adds the JournalLine to the txn
-     *
-     * @param TransactionLine $line
-     * @throws DoubleEntryException
-     * @throws \Exception
-     */
     public function addTransactionLine(TransactionLine $line): void
     {
         if($line->getComment() == null) {
             $line->setComment($this->comment);
         }
 
-        if(in_array($line->getAccount()->getAccountName(),$this->accountsUsed)) {
+        if(in_array(
+            $line->getAccount()->getAccountName(),
+            $this->accountsUsed
+        )) {
             throw new DoubleEntryException(
-                "Account `".$line->getAccount()->getAccountName().
+                "The Account `".$line->getAccount()->getAccountName().
                 "` has been used more than once.".
                 " in this transaction.."
             );
         }
 
-        /** $array[account-id] = 'account-name'  */
         $this->accountsUsed[$line->getAccount()->getAccountId()] = $line->getAccount()->getAccountName();
 
         if($line->isDebit()) {
@@ -152,27 +147,18 @@ class Transaction implements TransactionInterface
         $this->validate();
     }
 
-
-    /**
-     * Removes a Transactionline from the Transaction.
-     * This should only occur before committing
-     * to database or posting.
-     * 
-     * @param mixed $account_id The account-id Can be string or integer
-     * @return void
-     */
     public function removeTransactionLine(mixed $account_id): void
     {
         unset($this->accountsUsed[$account_id]);
 
         foreach ($this->debits as $key => $line) {
-            if($line->getAccount()->getAccountId() == $account_id) {
+            if($line->getAccount()->getAccountId() === $account_id) {
                 unset($this->debits[$key]);
             }
         }
 
         foreach ($this->credits as $key => $line) {
-            if($line->getAccount()->getAccountId()==$account_id) {
+            if($line->getAccount()->getAccountId() === $account_id) {
                 unset($this->credits[$key]);
             }
         }
@@ -180,60 +166,32 @@ class Transaction implements TransactionInterface
         $this->validate();
     }
 
-    /**
-     * Date of Transaction
-     */
     public function getDate(): DateTimeImmutable
     {
         return $this->date;
     }
 
-    /**
-     * Retrieves ALL Debits and Credits
-     * This function will merge both 
-     * into a single array and
-     * order by values.
-     *     
-     */
     public function getAccountlineEntries(): array
     {
         return array_merge($this->getDebits(), $this->getCredits());
     }
 
-    /**
-     * Gets the Transaction Comment
-     */
     public function getComment(): string
     {
         return $this->comment;
     }
 
-    /**
-     * Retrieves the debits for the Txn
-     *
-     * @return array of debits sorted fom
-     *                greatest value to least
-     */
     public function getDebits(): array
     {
         usort($this->debits, [$this, "cmp"]);
         return $this->debits;
     }
 
-    /**
-     * Retrieves the debits for the Txn
-     */
     public function getDebitsUnsorted(): array
     {
         return $this->debits;
     }
 
-    /**
-     * Retrieves the credits for the Txn
-     *
-     * @return array :array of credits sorted fom
-     *                greatest value to least
-     */
     public function getCredits(): array
     {
         usort($this->credits, [$this, "cmp"]);
@@ -245,30 +203,19 @@ class Transaction implements TransactionInterface
         return $this->credits;
     }
 
-    /**
-     * Gets the validity of the Transaction if Valid is false,
-     * this does not mean the object should be disposed.
-     * It just means there is 1 or more factors causing
-     * the object to not be allowed to be stored. 
-     * This should be investigated.
-     */
     public function isValid() : bool
     {
         return $this->validate();
     }
 
-    /**
-     * Validates the transaction
-     * 
-     * @return bool Weather or not the TXN is valid
-     */
-    private function validate(): bool 
+    private function validate(): bool
     {
         $this->isValid = false;
 
         foreach($this->debits as $dr) 
         {
             if(!($dr instanceof TransactionLine)) {
+                // an be an exception could be thrown here
                 return false;
             }
         } 
@@ -292,12 +239,11 @@ class Transaction implements TransactionInterface
            $crTotal += $cr->getValue();
         }
 
-        if(($drTotal > 0) && ($drTotal === $crTotal)) {
+        if(($drTotal === $crTotal) && (0 > $drTotal)) {
             $this->isValid = true;
-            return true;
         }
 
-        return false;
+        return $this->isValid;
     }
         
     /**

@@ -127,14 +127,9 @@ class TransactionTest extends TestCase
         $line2 = new TransactionLine($this->account2, 0, 50, 'Account 2 Comment');
 
         $txn = new Transaction($date, 'Valid Txn', [$line1, $line2]);
-
         $txn->removeTransactionLine(158);
 
-
         $this->assertEquals([$line2], $txn->getAccountlineEntries());
-
-        
-
     }
 
     public function testCMPTesting()

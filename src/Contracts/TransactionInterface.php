@@ -34,9 +34,7 @@ use SamMcDonald\LucaAccounts\Components\TransactionLine;
 interface TransactionInterface
 {
     /**
-     * Prepares and adds the JournalLine to the txn
-     * 
-     * @param TransactionLine $line 
+     * Prepares and adds the TransactionLine to the Transaction
      */
     public function addTransactionLine(TransactionLine $line);
 
@@ -44,9 +42,6 @@ interface TransactionInterface
      * Removes a TransactionLine from the Transaction.
      * This should only occur before committing
      * to database or posting.
-     * 
-     * @param  mixed $account_id The account-id Can be string or integer
-     * @return void
      */
     public function removeTransactionLine(mixed $account_id): void;
 
